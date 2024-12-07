@@ -168,14 +168,10 @@ class RagRetriever:
 
     @staticmethod
     def _build_index(config):
-        return CanonicalHFIndex(
+        return CustomHFIndex.load_from_disk(
             vector_size=config.retrieval_vector_size,
-            dataset_name=config.dataset,
-            dataset_split=config.dataset_split,
-            index_name=config.index_name,
+            dataset_path=config.passages_path,
             index_path=config.index_path,
-            use_dummy_dataset=config.use_dummy_dataset,
-            dataset_revision=config.dataset_revision,
         )
 
     @classmethod
