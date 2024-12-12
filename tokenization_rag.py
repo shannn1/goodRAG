@@ -14,16 +14,15 @@ class RagTokenizer:
         self.generator = generator  # Tokenizer for processing output (answers)
         self.current_tokenizer = self.question_encoder  # Set the default tokenizer to question_encoder
 
-def save_pretrained(self, save_directory):
-        if os.path.isfile(save_directory):
-            raise ValueError(f"Provided path ({save_directory}) should be a directory, not a file")
-        os.makedirs(save_directory, exist_ok=True)
-        question_encoder_path = os.path.join(save_directory, "question_encoder_tokenizer")
-        generator_path = os.path.join(save_directory, "generator_tokenizer")
-        self.question_encoder.save_pretrained(question_encoder_path)
-        self.generator.save_pretrained(generator_path)
+    def save_pretrained(self, save_directory):
+            if os.path.isfile(save_directory):
+                raise ValueError(f"Provided path ({save_directory}) should be a directory, not a file")
+            os.makedirs(save_directory, exist_ok=True)
+            question_encoder_path = os.path.join(save_directory, "question_encoder_tokenizer")
+            generator_path = os.path.join(save_directory, "generator_tokenizer")
+            self.question_encoder.save_pretrained(question_encoder_path)
+            self.generator.save_pretrained(generator_path)
 
-    @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path, **kwargs):
         from ..auto.tokenization_auto import AutoTokenizer
 
