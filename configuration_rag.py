@@ -16,7 +16,7 @@
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import add_start_docstrings
-from tokenization_auto import AutoTokenizer
+from transformers import AutoTokenizer
 
 
 RAG_CONFIG_DOC = r"""
