@@ -5,14 +5,13 @@ from typing import List, Optional, Tuple, Union
 import torch
 from torch import nn
 
-from ...configuration_utils import PretrainedConfig
-from ...generation import BeamSearchScorer, GenerationConfig, LogitsProcessorList, StoppingCriteriaList
-from ...modeling_outputs import ModelOutput
-from ...modeling_utils import PreTrainedModel
-from ...utils import add_start_docstrings_to_model_forward, logging, replace_return_docstrings
-from .configuration_rag import RagConfig
-from .retrieval_rag import RagRetriever
-
+from transformers.configuration_utils import PretrainedConfig
+from transformers.generation import BeamSearchScorer, GenerationConfig, LogitsProcessorList, StoppingCriteriaList
+from transformers.modeling_outputs import ModelOutput
+from transformers.modeling_utils import PreTrainedModel
+from transformers.utils import add_start_docstrings_to_model_forward, logging, replace_return_docstrings
+from transformers import RagConfig
+from transformers import RagRetriever
 
 logger = logging.get_logger(__name__)
 
