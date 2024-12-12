@@ -16,6 +16,7 @@
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import add_start_docstrings
+from tokenization_auto import AutoTokenizer
 
 
 RAG_CONFIG_DOC = r"""
@@ -134,7 +135,7 @@ class RagConfig(PretrainedConfig):
         decoder_config = kwargs.pop("generator")
         decoder_model_type = decoder_config.pop("model_type")
 
-        from ..auto.configuration_auto import AutoConfig
+        # from ..auto.configuration_auto import AutoConfig
 
         self.question_encoder = AutoConfig.for_model(question_encoder_model_type, **question_encoder_config)
         self.generator = AutoConfig.for_model(decoder_model_type, **decoder_config)
