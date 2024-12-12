@@ -14,8 +14,8 @@
 # limitations under the License.
 """RAG model configuration"""
 
-from ...configuration_utils import PretrainedConfig
-from ...utils import add_start_docstrings
+from transformers.configuration_utils import PretrainedConfig
+from transformers.utils import add_start_docstrings
 
 
 RAG_CONFIG_DOC = r"""
