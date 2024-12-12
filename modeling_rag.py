@@ -10,8 +10,8 @@ from transformers.generation import BeamSearchScorer, GenerationConfig, LogitsPr
 from transformers.modeling_outputs import ModelOutput
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import add_start_docstrings_to_model_forward, logging, replace_return_docstrings
-from transformers import RagConfig
-from transformers import RagRetriever
+from .configuration_rag import RagConfig
+from .retrieval_rag import RagRetriever
 
 logger = logging.get_logger(__name__)
 
