@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from transformers.tokenization_utils_base import BatchEncoding
 from transformers.utils import logging
-from .configuration_rag import RagConfig
+from configuration_rag import RagConfig
 
 logger = logging.get_logger(__name__)
 
