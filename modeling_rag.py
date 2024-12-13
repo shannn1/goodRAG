@@ -18,23 +18,23 @@ logger = logging.get_logger(__name__)
 
 @dataclass
 class RetrievAugLMMarginOutput(ModelOutput):
-    loss: Optional[torch.FloatTensor] = None #(1,) 语言模型的损失
-    logits: torch.FloatTensor = None # (batch_size, sequence_length, config.vocab_size) 语言模型头部的预测分数
-    doc_scores: torch.FloatTensor = None # (batch_size, config.n_docs) 检索的文档嵌入与问题编码器最后一层隐藏状态之间的分数
-    past_key_values: Optional[List[torch.FloatTensor]] = None # (2, batch_size, num_heads, sequence_length, embed_size_per_head) 解码器的预计算隐藏状态
-    retrieved_doc_embeds: Optional[torch.FloatTensor] = None # (batch_size, config.n_docs, hidden_size) 由检索器找到的文档嵌入，用于计算 doc_scores
-    retrieved_doc_ids: Optional[torch.LongTensor] = None # (batch_size, config.n_docs) 检索到的文档索引
-    context_input_ids: Optional[torch.LongTensor] = None # 输入 ID 注意力掩码, 检索文档与问题编码器输入中处理得来的数据
-    context_attention_mask: Optional[torch.LongTensor] = None # 注意力掩码, 检索文档与问题编码器输入中处理得来的数据
-    question_encoder_last_hidden_state: Optional[torch.FloatTensor] = None # 问题编码器的最后一层隐藏状态
-    question_enc_hidden_states: Optional[Tuple[torch.FloatTensor, ...]] = None # 问题编码器每一层的中间结果
-    question_enc_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None # 问题编码器的注意力分数
-    generator_enc_last_hidden_state: Optional[torch.FloatTensor] = None # 生成器编码器的最后一层隐藏状态生成器编码器的中间结果
-    generator_enc_hidden_states: Optional[Tuple[torch.FloatTensor, ...]] = None # 生成器编码器的注意力分数
-    generator_enc_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None # 生成器编码器的注意力分数
-    generator_dec_hidden_states: Optional[Tuple[torch.FloatTensor, ...]] = None # 生成器解码器的中间结果
-    generator_dec_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None # 生成器解码器的注意力分数
-    generator_cross_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None # 生成器解码器的交叉注意力分数
+    loss: Optional[torch.FloatTensor] = None  # (1,) The loss for the language model.
+    logits: torch.FloatTensor = None  # (batch_size, sequence_length, config.vocab_size) Predicted scores from the language model head.
+    doc_scores: torch.FloatTensor = None  # (batch_size, config.n_docs) Scores between the retrieved document embeddings and the last hidden states of the question encoder.
+    past_key_values: Optional[List[torch.FloatTensor]] = None  # (2, batch_size, num_heads, sequence_length, embed_size_per_head) Cached hidden states of the decoder.
+    retrieved_doc_embeds: Optional[torch.FloatTensor] = None  # (batch_size, config.n_docs, hidden_size) Document embeddings retrieved by the retriever, used to compute doc_scores.
+    retrieved_doc_ids: Optional[torch.LongTensor] = None  # (batch_size, config.n_docs) Indices of the retrieved documents.
+    context_input_ids: Optional[torch.LongTensor] = None  # Tokenized IDs of the context documents and processed question encoder input.
+    context_attention_mask: Optional[torch.LongTensor] = None  # Attention mask for context documents and question encoder input.
+    question_encoder_last_hidden_state: Optional[torch.FloatTensor] = None  # Last hidden state of the question encoder.
+    question_enc_hidden_states: Optional[Tuple[torch.FloatTensor, ...]] = None  # Intermediate results from each layer of the question encoder.
+    question_enc_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None  # Attention scores from the question encoder.
+    generator_enc_last_hidden_state: Optional[torch.FloatTensor] = None  # Last hidden state of the generator encoder.
+    generator_enc_hidden_states: Optional[Tuple[torch.FloatTensor, ...]] = None  # Intermediate results from the generator encoder.
+    generator_enc_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None  # Attention scores from the generator encoder.
+    generator_dec_hidden_states: Optional[Tuple[torch.FloatTensor, ...]] = None  # Intermediate results from the generator decoder.
+    generator_dec_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None  # Attention scores from the generator decoder.
+    generator_cross_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None  # Cross-attention scores from the generator decoder.
 
 
 @dataclass
@@ -58,14 +58,14 @@ class RetrievAugLMOutput(ModelOutput):
 
 
 class RagPreTrainedModel(PreTrainedModel):
-    config_class = RagConfig # 配置类为 RagConfig，用于加载模型相关的参数
-    base_model_prefix = "rag" # 定义模型的前缀，用于标识模型相关文件或变量
-    _supports_flash_attn_2 = True  # 标记该模型是否支持高效注意力机制
+    config_class = RagConfig 
+    base_model_prefix = "rag" 
+    _supports_flash_attn_2 = True  
     _supports_sdpa = True
 
     @classmethod
-    def from_pretrained(cls, *args, **kwargs): # 从预训练模型权重加载实例
-        kwargs["_fast_init"] = False  # 复合模型（如 RAG）暂不支持快速初始化。
+    def from_pretrained(cls, *args, **kwargs): 
+        kwargs["_fast_init"] = False  
         return super().from_pretrained(*args, **kwargs)
 
     @classmethod
@@ -76,7 +76,7 @@ class RagPreTrainedModel(PreTrainedModel):
         retriever: RagRetriever = None,
         **kwargs,
     ) -> PreTrainedModel:
-        # 从 kwargs 提取与 question_encoder 和 generator 相关的配置
+        
         kwargs_question_encoder = {
             argument[len("question_encoder_") :]: value
             for argument, value in kwargs.items()
@@ -88,16 +88,16 @@ class RagPreTrainedModel(PreTrainedModel):
             for argument, value in kwargs.items()
             if argument.startswith("generator_")
         }
-        # 删除提取的参数，防止冲突
+        
         for key in kwargs_question_encoder.keys():
             del kwargs["question_encoder_" + key]
         for key in kwargs_generator.keys():
             del kwargs["generator_" + key]
 
-        # 加载 question_encoder 和 generator
+        
         question_encoder = kwargs_question_encoder.pop("model", None)
 
-        # 检查是否提供了 question_encoder 和 generator 的预训练模型路径，使用 AutoModel 和 AutoModelForSeq2SeqLM 动态加载指定的模型
+        
         if question_encoder is None:
             assert question_encoder_pretrained_model_name_or_path is not None, (
                 "If `model` is not defined as an argument, a `question_encoder_pretrained_model_name_or_path` has to"
@@ -140,7 +140,7 @@ class RagPreTrainedModel(PreTrainedModel):
                 generator_pretrained_model_name_or_path, **kwargs_generator
             )
 
-        # 若未提供配置对象，则基于 question_encoder 和 generator 的配置创建新的 RagConfig
+        
         config = kwargs.get("config", None)
         if config is None:
             config = RagConfig.from_question_encoder_generator_configs(
@@ -152,34 +152,34 @@ class RagPreTrainedModel(PreTrainedModel):
 class RagModel(RagPreTrainedModel):
     def __init__(
         self,
-        config: Optional[PretrainedConfig] = None, # 模型的配置对象（如 RagConfig），包含所有关键的超参数
-        question_encoder: Optional[PreTrainedModel] = None, # 用于编码问题（输入查询）的编码器模型
-        generator: Optional[PreTrainedModel] = None, # 用于生成自然语言输出的生成器模型
-        retriever: Optional[RagRetriever] = None,  # or maybe just use a `set_retriever(...)` method
+        config: Optional[PretrainedConfig] = None, 
+        question_encoder: Optional[PreTrainedModel] = None, 
+        generator: Optional[PreTrainedModel] = None, 
+        retriever: Optional[RagRetriever] = None, 
         **kwargs,
     ):
         assert config is not None or (
             question_encoder is not None and generator is not None
         ), "Either a configuration or an question_encoder and a generator has to be provided."
 
-        if config is None: # 如果未提供 config，通过问题编码器和生成器的配置自动生成一个
+        if config is None: 
             config = RagConfig.from_question_encoder_generator_configs(
                 question_encoder.config, generator.config, **kwargs
             )
         else:
             assert isinstance(config, self.config_class), f"config: {config} has to be of type {self.config_class}"
         super().__init__(config)
-        if question_encoder is None: # 默认使用 AutoModel 加载
+        if question_encoder is None: 
             from ..auto.modeling_auto import AutoModel
 
             question_encoder = AutoModel.from_config(config.question_encoder)
 
-        if generator is None: # 默认使用 AutoModelForSeq2SeqLM 加载
+        if generator is None: 
             from ..auto.modeling_auto import AutoModelForSeq2SeqLM
 
             generator = AutoModelForSeq2SeqLM.from_config(config.generator)
 
-        self.retriever = retriever # 必须是 RagRetriever 的实例，负责检索相关上下文
+        self.retriever = retriever 
         if self.retriever is not None:
             assert isinstance(
                 retriever, RagRetriever
@@ -189,25 +189,25 @@ class RagModel(RagPreTrainedModel):
         self.question_encoder = question_encoder
         self.generator = generator
 
-        self.ctx_encoder = None  # 用于选择是否训练上下文编码器
+        self.ctx_encoder = None  
         self.context_encoder_training = False
 
     def forward(
         self,
-        input_ids: Optional[torch.LongTensor] = None, # 表示输入问题（如查询）的标记化序列和对应的注意力掩码
+        input_ids: Optional[torch.LongTensor] = None, 
         attention_mask: Optional[torch.Tensor] = None,
-        encoder_outputs: Optional[Tuple[Tuple[torch.FloatTensor]]] = None,  # 预先计算好的编码器输出，减少重复计算
+        encoder_outputs: Optional[Tuple[Tuple[torch.FloatTensor]]] = None,  
         decoder_input_ids: Optional[torch.LongTensor] = None,
         decoder_attention_mask: Optional[torch.BoolTensor] = None,
         past_key_values: Optional[Tuple[Tuple[torch.FloatTensor]]] = None,
-        doc_scores: Optional[torch.FloatTensor] = None, # 每个检索文档的相关性分数
-        context_input_ids: Optional[torch.LongTensor] = None, # 检索到的文档的标记化结果及其掩码
+        doc_scores: Optional[torch.FloatTensor] = None, 
+        context_input_ids: Optional[torch.LongTensor] = None, 
         context_attention_mask: Optional[torch.LongTensor] = None,
         use_cache: Optional[bool] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         output_retrieved: Optional[bool] = None,
-        n_docs: Optional[int] = None, # 检索文档的数量
+        n_docs: Optional[int] = None, 
     ) -> Union[Tuple[torch.Tensor], RetrievAugLMOutput]:
         n_docs = n_docs if n_docs is not None else self.config.n_docs
         use_cache = use_cache if use_cache is not None else self.config.use_cache
@@ -224,8 +224,7 @@ class RagModel(RagPreTrainedModel):
             and encoder_outputs is None
         )
         # encoder_outputs are pre-computed during RAG-token generation
-        # 如果未提供 encoder_outputs 且需要检索文档，先用 question_encoder 对问题进行编码
-        # 调用 retriever 对问题编码向量进行检索
+        
         if encoder_outputs is None:
             if has_to_retrieve:
                 question_enc_outputs = self.question_encoder(
@@ -256,7 +255,7 @@ class RagModel(RagPreTrainedModel):
                         retriever_outputs["tokenized_doc_attention_mask"],
                         retriever_outputs["doc_ids"],
                     )
-                    # 返回检索文档的标记化数据（context_input_ids 等）及嵌入
+                    
                     context_input_ids = context_input_ids.to(input_ids)
                     context_attention_mask = context_attention_mask.to(input_ids)
 
@@ -269,7 +268,7 @@ class RagModel(RagPreTrainedModel):
                         -1, n_docs, question_encoder_last_hidden_state.shape[1]
                     )  # reshaping
 
-                    # compute doc_scores involving ctx_encoder 使用 torch.bmm 计算问题编码与文档嵌入的相关性分数
+                    # compute doc_scores involving ctx_encoder
                     doc_scores = torch.bmm(
                         question_encoder_last_hidden_state.unsqueeze(1), retrieved_doc_embeds.transpose(1, 2)
                     ).squeeze(1)
@@ -321,7 +320,7 @@ class RagModel(RagPreTrainedModel):
         if decoder_attention_mask is not None:
             decoder_attention_mask = decoder_attention_mask.repeat_interleave(n_docs, dim=0)
 
-        # 使用上下文文档及问题的编码结果作为输入，通过 generator 生成最终输出
+        
         gen_outputs = self.generator(
             input_ids=context_input_ids,
             attention_mask=context_attention_mask,
@@ -351,7 +350,7 @@ class RagModel(RagPreTrainedModel):
             retrieved_doc_embeds = None
             retrieved_doc_ids = None
 
-        return RetrievAugLMOutput( # 包含生成结果、检索信息（如文档得分、嵌入）和中间层的注意力信息等
+        return RetrievAugLMOutput( 
             logits=gen_outputs.logits,
             doc_scores=doc_scores,
             past_key_values=gen_outputs.past_key_values, 
